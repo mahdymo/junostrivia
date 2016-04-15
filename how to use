@@ -1,0 +1,10 @@
+* This script as mentioned used to ease the management of SRX with multiple Logical systems. 
+* Input: you can use a csv file with source IPs in a column and the destination IPs in the next column if you are using subnetting
+you can use the first IP of each subnet. 
+
+* Output: currently the output is a csv with source / destination zones, interfaces, IPs.
+* It collects other data : routing instances, logical systems that can be used for further development. 
+
+
+Thank you, 
+Mahdy
