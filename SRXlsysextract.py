@@ -81,12 +81,15 @@ def SRXinfoextract(file,Ofile):
         for row in reader:
             SourceIP.append(row[0])
             DestinationIP.append(row[1])
+
     while i < len(SourceIP):
         Sintf = Interface(SourceIP[i])
         if Sintf.find('reth') != -1:
             SourceInterface.append(Sintf)
             lsys = LSYS(SourceIP[i])
             LogicalSystem.append(lsys)
+            rt = RoutingTable(SourceIP[i])
+            RoutingInstance.append(rt)
         else:
             lsys = LSYS(DestinationIP[i])
             LogicalSystem.append(i)
@@ -96,28 +99,37 @@ def SRXinfoextract(file,Ofile):
             SourceInterface.append(eXInterface)
         i += 1
     i = 0
+    print SourceIP
     while i < len(DestinationIP):
         Dintf = Interface(DestinationIP[i])
         if Dintf.find('reth') != -1:
             DestinationInterface.append(Dintf)
+            rt = RoutingTable(DestinationIP[i])
+            RoutingInstance.append(rt)
         else:
             lsys = LSYS(SourceIP[i])
             rt = RoutingTable(SourceIP[i])
+            RoutingInstance.append(rt)
             eXInterface = ExternalIntf(lsys, rt, DestinationIP[i])
             DestinationInterface.append(eXInterface)
         i += 1
+    print DestinationIP
+
     for Sintf in SourceInterface:
         Szone = Zone(Sintf)
         SourceZone.append(Szone)
+    print SourceZone
     for Dintf in DestinationInterface:
         Dzone = Zone(Dintf)
         DestinationZone.append(Dzone)
+    print DestinationZone
     data = [SourceZone, SourceIP, SourceInterface, DestinationZone, DestinationIP, DestinationInterface, LogicalSystem, RoutingInstance]
+    print data
     Transdata = zip(*data)
+    print Transdata
     sheet = pe.Sheet(Transdata)
+    print sheet
     sheet.save_as(Ofile)
-    f.close()
-    SRX.close()
     return(Ofile)
 ########################********************#############################**************###############################
 ########################################Program ********************* Program ########################################
@@ -139,3 +151,4 @@ while Check =='Y':
     SRXLSYSinfo = SRXinfoextract(file,Ofile)
     print "Process completed please check the output file location!"
     Check = raw_input("Check another Firewall (Y or N): ")
+SRX.close()
