@@ -75,7 +75,6 @@ def SRXinfoextract(file,Ofile):
     RoutingInstance = []
     DestinationInterface = []
     DestinationZone = []
-    Headerinfo = ['SourceZone', 'SourceIP', 'SourceInterface', 'DestinationZone', 'DestinationIP', 'DestinationInterface','LogicalSystem','RoutingInstance']
     with open(file, 'r') as f:
         reader = csv.reader(f)
         next(reader)
@@ -113,7 +112,7 @@ def SRXinfoextract(file,Ofile):
     for Dintf in DestinationInterface:
         Dzone = Zone(Dintf)
         DestinationZone.append(Dzone)
-    data = [Headerinfo, SourceZone, SourceIP, SourceInterface, DestinationZone, DestinationIP, DestinationInterface, LogicalSystem, RoutingInstance]
+    data = [SourceZone, SourceIP, SourceInterface, DestinationZone, DestinationIP, DestinationInterface, LogicalSystem, RoutingInstance]
     Transdata = zip(*data)
     sheet = pe.Sheet(Transdata)
     sheet.save_as(Ofile)
