@@ -64,48 +64,31 @@ def ExternalIntf(x,y,z):
     Exint = dataout.read()
     Exint = Exint[Exint.index(' '):Exint.index('\n')]
     return(Exint)
-
-########################********************#############################**************###############################
-########################################Program ********************* Program ########################################
-########################********************#############################**************###############################
-
-file = raw_input("Please enter the source file containing the source and destination IPs: ")
-Ofile = raw_input("Please enter the Destination file to send the output: ")
-UN = raw_input("Please enter the user name: ")
-PWD = raw_input("Please enter the password: ")
-SourceIP = []
-DestinationIP = []
-i = 0
-SourceInterface = []
-SourceZone = []
-LogicalSystem = []
-RoutingInstance = []
-DestinationInterface =[]
-DestinationZone = []
-Check = 'Y'
-while Check == 'Y':
-    device = raw_input("Please enter the Firewall IP to be checked: ")
-    SRX = paramiko.SSHClient()
-    SRX.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    SRX.connect(device, username=UN, password=PWD)
-
+##Function used to handle the device related info, requires (Input file, output file, Username, password, device IP)
+def SRXinfoextract(file,Ofile):
+    SourceIP = []
+    DestinationIP = []
+    i = 0
+    SourceInterface = []
+    SourceZone = []
+    LogicalSystem = []
+    RoutingInstance = []
+    DestinationInterface = []
+    DestinationZone = []
+    Headerinfo = ['SourceZone', 'SourceIP', 'SourceInterface', 'DestinationZone', 'DestinationIP', 'DestinationInterface','LogicalSystem','RoutingInstance']
     with open(file, 'r') as f:
         reader = csv.reader(f)
         next(reader)
         for row in reader:
             SourceIP.append(row[0])
             DestinationIP.append(row[1])
-
-
     while i < len(SourceIP):
         Sintf = Interface(SourceIP[i])
         if Sintf.find('reth') != -1:
             SourceInterface.append(Sintf)
             lsys = LSYS(SourceIP[i])
             LogicalSystem.append(lsys)
-
         else:
-            tmp = Interface(DestinationIP[i])
             lsys = LSYS(DestinationIP[i])
             LogicalSystem.append(i)
             rt = RoutingTable(DestinationIP[i])
@@ -113,40 +96,47 @@ while Check == 'Y':
             eXInterface = ExternalIntf(lsys, rt, SourceIP[i])
             SourceInterface.append(eXInterface)
         i += 1
-
     i = 0
     while i < len(DestinationIP):
         Dintf = Interface(DestinationIP[i])
         if Dintf.find('reth') != -1:
             DestinationInterface.append(Dintf)
         else:
-            tmp = Interface(SourceIP[i])
             lsys = LSYS(SourceIP[i])
             rt = RoutingTable(SourceIP[i])
             eXInterface = ExternalIntf(lsys, rt, DestinationIP[i])
             DestinationInterface.append(eXInterface)
         i += 1
-
-
     for Sintf in SourceInterface:
-            Szone = Zone(Sintf)
-            SourceZone.append(Szone)
-
+        Szone = Zone(Sintf)
+        SourceZone.append(Szone)
     for Dintf in DestinationInterface:
         Dzone = Zone(Dintf)
         DestinationZone.append(Dzone)
-
-
-    Transdata = []
-    row = 0
-    col = 0
-    data = []
-    data = [SourceZone,SourceIP,SourceInterface,DestinationZone,DestinationIP,DestinationInterface]
+    data = [Headerinfo, SourceZone, SourceIP, SourceInterface, DestinationZone, DestinationIP, DestinationInterface, LogicalSystem, RoutingInstance]
     Transdata = zip(*data)
     sheet = pe.Sheet(Transdata)
-    #print sheet
     sheet.save_as(Ofile)
     f.close()
     SRX.close()
-    Check = raw_input("Start checking the Firewall now(Y or N): ")
+    return(Ofile)
+########################********************#############################**************###############################
+########################################Program ********************* Program ########################################
+########################********************#############################**************###############################
 
+Check = 'Y'
+file = raw_input("Please enter the source file containing the source and destination IPs: ")
+Ofile = raw_input("Please enter the Destination file to send the output: ")
+UN = raw_input("Please enter the user name: ")
+PWD = raw_input("Please enter the password: ")
+while Check =='Y':
+    IP = raw_input("Please enter the Firewall IP to be checked: ")
+    print "Connecting..."
+    SRX = paramiko.SSHClient()
+    SRX.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    SRX.connect(IP, username=UN, password=PWD)
+    print "Connected"
+    print "Process in progress it may take few minutes..."
+    SRXLSYSinfo = SRXinfoextract(file,Ofile)
+    print "Process completed please check the output file location!"
+    Check = raw_input("Check another Firewall (Y or N): ")
