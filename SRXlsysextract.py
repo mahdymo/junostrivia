@@ -99,7 +99,6 @@ def SRXinfoextract(file,Ofile):
             SourceInterface.append(eXInterface)
         i += 1
     i = 0
-    print SourceIP
     while i < len(DestinationIP):
         Dintf = Interface(DestinationIP[i])
         if Dintf.find('reth') != -1:
@@ -113,22 +112,15 @@ def SRXinfoextract(file,Ofile):
             eXInterface = ExternalIntf(lsys, rt, DestinationIP[i])
             DestinationInterface.append(eXInterface)
         i += 1
-    print DestinationIP
-
     for Sintf in SourceInterface:
         Szone = Zone(Sintf)
         SourceZone.append(Szone)
-    print SourceZone
     for Dintf in DestinationInterface:
         Dzone = Zone(Dintf)
         DestinationZone.append(Dzone)
-    print DestinationZone
     data = [SourceZone, SourceIP, SourceInterface, DestinationZone, DestinationIP, DestinationInterface, LogicalSystem, RoutingInstance]
-    print data
     Transdata = zip(*data)
-    print Transdata
     sheet = pe.Sheet(Transdata)
-    print sheet
     sheet.save_as(Ofile)
     return(Ofile)
 ########################********************#############################**************###############################
